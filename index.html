@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<!-- Application mobile : on empêche le zoom parasite et on adapte à tous les écrans -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#7f1d2d">
+<title>Cadoo — Idées de cadeaux de Noël</title>
+<style>
+/* ============================================================
+   CADOO — Styles
+   Ambiance : rouge profond, vert sapin, doré. Mobile-first,
+   gros boutons tactiles, utilisable d'une seule main.
+   ============================================================ */
+:root{
+  --rouge-fond:#6d1220;
+  --rouge:#8f1d2c;
+  --rouge-clair:#b03040;
+  --vert:#14532d;
+  --vert-fonce:#0c3a24;
+  --vert-clair:#1e7a46;
+  --or:#e8b64c;
+  --or-clair:#f5d78e;
+  --creme:#fff7ea;
+  --creme-dim:#f3e3c8;
+  --carte:rgba(255,248,235,.08);
+  --carte-bord:rgba(232,182,76,.35);
+  --rayon:20px;
+  --ombre:0 10px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  color:var(--creme);
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(232,182,76,.25), transparent 60%),
+    radial-gradient(900px 500px at -10% 20%, rgba(30,122,70,.35), transparent 55%),
+    linear-gradient(160deg, #7f1626 0%, var(--rouge-fond) 45%, #4a0d18 100%);
+  min-height:100vh;
+  padding-bottom:96px; /* place pour la barre de navigation du bas */
+  overflow-x:hidden;
+}
+/* Canvas de neige, au-dessus du fond mais sous les fenêtres modales */
+#neige{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:none}
+button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--or);outline-offset:2px}
+
+/* ---------- En-tête ---------- */
+header{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;
+  background:linear-gradient(180deg, rgba(74,13,24,.92), rgba(74,13,24,.75));
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid rgba(232,182,76,.25);
+}
+.btn-retour{
+  width:44px;height:44px;flex:0 0 44px;border-radius:50%;
+  background:var(--carte);border:1px solid var(--carte-bord);
+  font-size:20px;display:grid;place-items:center;
+  transition:transform .15s, opacity .2s;
+}
+.btn-retour:active{transform:scale(.92)}
+.btn-retour.invisible{opacity:0;pointer-events:none}
+.logo{font-size:24px;font-weight:800;letter-spacing:.5px;flex:1;text-align:center}
+.logo .or{color:var(--or)}
+.btn-son{
+  width:44px;height:44px;flex:0 0 44px;border-radius:50%;
+  background:var(--carte);border:1px solid var(--carte-bord);font-size:20px;
+  display:grid;place-items:center;transition:transform .15s;
+}
+.btn-son:active{transform:scale(.92)}
+
+/* ---------- Écrans ---------- */
+main{position:relative;z-index:2;max-width:560px;margin:0 auto;padding:8px 16px 24px}
+.ecran{display:none}
+.ecran.actif{display:block;animation:fondu .35s ease both}
+@keyframes fondu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+h1{font-size:30px;line-height:1.15;margin:14px 0 6px}
+h2{font-size:22px;margin:18px 0 10px}
+.sous-titre{color:var(--creme-dim);font-size:16px;line-height:1.45;margin:0 0 16px}
+
+/* Badge compte à rebours */
+.compte-rebours{
+  display:inline-flex;align-items:center;gap:8px;
+  background:linear-gradient(135deg, var(--vert), var(--vert-fonce));
+  border:1px solid var(--carte-bord);color:var(--creme);
+  padding:10px 16px;border-radius:999px;font-weight:700;font-size:15px;
+  box-shadow:var(--ombre);margin:6px 0 18px;
+}
+.compte-rebours .jours{color:var(--or-clair);font-size:18px}
+
+/* ---------- Accueil : grosses cartes ---------- */
+.grande-carte{
+  display:flex;align-items:center;gap:16px;width:100%;text-align:left;
+  background:var(--carte);border:1.5px solid var(--carte-bord);border-radius:var(--rayon);
+  padding:22px 18px;margin:0 0 16px;box-shadow:var(--ombre);
+  transition:transform .15s, background .2s;position:relative;overflow:hidden;
+}
+.grande-carte::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(120deg, transparent 30%, rgba(255,255,255,.09) 50%, transparent 70%);
+  transform:translateX(-100%);transition:transform .6s;
+}
+.grande-carte:active{transform:scale(.98)}
+.grande-carte:hover::after{transform:translateX(100%)}
+.grande-carte .emoji{font-size:52px;flex:0 0 auto;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
+.grande-carte .titre{font-size:21px;font-weight:800;display:block;margin-bottom:4px}
+.grande-carte .desc{color:var(--creme-dim);font-size:14.5px;line-height:1.4;display:block}
+.grande-carte .fleche{margin-left:auto;font-size:26px;color:var(--or);flex:0 0 auto}
+
+.btn-surprise{
+  display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+  background:linear-gradient(135deg, var(--or), #d99a26);color:#4a2c00;
+  font-size:19px;font-weight:800;padding:18px;border-radius:var(--rayon);
+  box-shadow:0 12px 24px rgba(217,154,38,.35);transition:transform .15s;margin-top:4px;
+}
+.btn-surprise:active{transform:scale(.97) rotate(-.5deg)}
+.astuce{
+  margin-top:18px;background:rgba(12,58,36,.55);border:1px dashed var(--carte-bord);
+  border-radius:var(--rayon);padding:14px 16px;font-size:14.5px;line-height:1.5;color:var(--creme-dim);
+}
+.astuce strong{color:var(--or-clair)}
+
+/* ---------- Calendrier de l'avent ---------- */
+.calendrier-infos{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+.pastille{
+  background:var(--carte);border:1px solid var(--carte-bord);border-radius:999px;
+  padding:8px 14px;font-size:14px;font-weight:600;
+}
+.btn-test{
+  background:linear-gradient(135deg, var(--vert-clair), var(--vert));
+  border:1px solid var(--carte-bord);border-radius:999px;
+  padding:10px 16px;font-weight:700;font-size:14.5px;min-height:44px;
+  transition:transform .15s, filter .2s;
+}
+.btn-test:active{transform:scale(.96)}
+.btn-test.actif{filter:brightness(1.35);outline:2px solid var(--or)}
+.grille-calendrier{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:9px;
+}
+.case{
+  position:relative;aspect-ratio:.82;border-radius:14px;overflow:hidden;
+  background:linear-gradient(160deg, rgba(255,255,255,.14), rgba(255,255,255,.04));
+  border:1px solid rgba(232,182,76,.3);perspective:600px;padding:0;
+  box-shadow:0 6px 14px rgba(0,0,0,.3);
+}
+/* Le contenu révélé, derrière la porte */
+.case .dos{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;padding:4px;text-align:center;
+}
+.case .dos .emoji{font-size:26px}
+.case .dos .nom{font-size:9.5px;line-height:1.15;color:var(--creme-dim);font-weight:600;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.case .btn-coeur-mini{
+  position:absolute;top:2px;right:2px;font-size:14px;width:26px;height:26px;z-index:4;
+  display:grid;place-items:center;border-radius:50%;background:rgba(0,0,0,.25);
+}
+/* La porte qui s'ouvre en rotation 3D */
+.case .porte{
+  position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  background:
+    radial-gradient(circle at 85% 50%, var(--or) 0 4px, transparent 5px),
+    linear-gradient(150deg, var(--vert-clair), var(--vert-fonce));
+  border:2px solid rgba(232,182,76,.55);border-radius:12px;
+  transform-origin:left center;transition:transform .7s cubic-bezier(.6,.05,.3,1), opacity .5s;
+  backface-visibility:hidden;
+}
+.case .porte .numero{font-size:24px;font-weight:900;color:var(--or-clair);text-shadow:0 2px 6px rgba(0,0,0,.5)}
+.case .porte .cadenas{font-size:14px;opacity:.9}
+.case.ouvert .porte{transform:rotateY(-105deg);opacity:.15;pointer-events:none}
+.case.verrouille .porte{background:linear-gradient(150deg, #37503f, #1d2b22);filter:saturate(.5)}
+.case.aujourdhui .porte{animation:pulse 1.6s ease-in-out infinite;border-color:var(--or)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(232,182,76,.0)}50%{box-shadow:0 0 0 4px rgba(232,182,76,.45)}}
+.case.secoue{animation:secoue .45s ease}
+@keyframes secoue{0%,100%{transform:none}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* ---------- Questionnaire ---------- */
+.progression{height:10px;background:rgba(255,255,255,.15);border-radius:99px;overflow:hidden;margin:14px 0 6px}
+.progression .barre{height:100%;background:linear-gradient(90deg, var(--or), #f0c569);border-radius:99px;transition:width .4s ease}
+.etape-texte{font-size:13.5px;color:var(--creme-dim);font-weight:600;letter-spacing:.4px;text-transform:uppercase}
+.question{font-size:24px;font-weight:800;margin:8px 0 4px;line-height:1.25}
+.question-aide{color:var(--creme-dim);margin:0 0 16px;font-size:15px}
+.choix{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.choix.une-colonne{grid-template-columns:1fr}
+.btn-choix{
+  display:flex;align-items:center;gap:10px;text-align:left;
+  background:var(--carte);border:1.5px solid var(--carte-bord);border-radius:16px;
+  padding:16px 14px;font-size:16.5px;font-weight:700;min-height:60px;
+  transition:transform .12s, background .2s, border-color .2s;line-height:1.25;
+}
+.btn-choix .emoji{font-size:26px;flex:0 0 auto}
+.btn-choix:active{transform:scale(.97)}
+.btn-choix.choisi{background:linear-gradient(135deg, rgba(232,182,76,.85), rgba(217,154,38,.85));color:#40260a;border-color:var(--or-clair)}
+.btn-action{
+  display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  background:linear-gradient(135deg, var(--vert-clair), var(--vert));
+  border:1px solid var(--carte-bord);color:var(--creme);
+  font-size:18px;font-weight:800;padding:17px;border-radius:var(--rayon);
+  box-shadow:var(--ombre);transition:transform .15s, opacity .2s;margin-top:18px;min-height:58px;
+}
+.btn-action:active{transform:scale(.98)}
+.btn-action:disabled{opacity:.45;pointer-events:none}
+.btn-secondaire{
+  display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  background:var(--carte);border:1.5px solid var(--carte-bord);color:var(--creme);
+  font-size:16.5px;font-weight:700;padding:15px;border-radius:var(--rayon);
+  transition:transform .15s;margin-top:12px;min-height:54px;
+}
+.btn-secondaire:active{transform:scale(.98)}
+
+/* ---------- Cartes résultats & favoris ---------- */
+.carte-idee{
+  background:var(--carte);border:1.5px solid var(--carte-bord);border-radius:var(--rayon);
+  padding:18px;margin:0 0 14px;box-shadow:var(--ombre);position:relative;
+  animation:fondu .4s ease both;
+}
+.carte-idee .haut{display:flex;gap:14px;align-items:flex-start}
+.carte-idee .gros-emoji{font-size:46px;flex:0 0 auto;line-height:1}
+.carte-idee h3{margin:2px 0 6px;font-size:19px;line-height:1.25;padding-right:52px}
+.carte-idee p{margin:0;color:var(--creme-dim);font-size:15px;line-height:1.5}
+.carte-idee .pourquoi{margin-top:10px;font-size:14.5px}
+.carte-idee .pourquoi strong{color:var(--or-clair)}
+.prix{
+  display:inline-block;margin-top:12px;background:rgba(232,182,76,.18);
+  border:1px solid rgba(232,182,76,.5);color:var(--or-clair);
+  padding:5px 12px;border-radius:999px;font-weight:800;font-size:14.5px;
+}
+.btn-coeur{
+  position:absolute;top:12px;right:12px;width:46px;height:46px;border-radius:50%;
+  background:rgba(0,0,0,.28);border:1px solid var(--carte-bord);
+  font-size:21px;display:grid;place-items:center;transition:transform .15s;
+}
+.btn-coeur:active{transform:scale(1.2)}
+.btn-coeur.actif{background:rgba(232,182,76,.25)}
+
+.groupe-titre{
+  display:flex;align-items:center;gap:8px;margin:22px 0 10px;
+  font-size:17px;font-weight:800;color:var(--or-clair);
+}
+.fav-ligne{
+  display:flex;align-items:center;gap:12px;background:var(--carte);
+  border:1px solid var(--carte-bord);border-radius:16px;padding:12px 14px;margin-bottom:9px;
+}
+.fav-ligne .emoji{font-size:30px}
+.fav-ligne .infos{flex:1;min-width:0}
+.fav-ligne .nom{font-weight:700;font-size:15.5px;line-height:1.3}
+.fav-ligne .detail{color:var(--creme-dim);font-size:13px;margin-top:2px}
+.btn-retirer{
+  width:42px;height:42px;flex:0 0 42px;border-radius:50%;font-size:17px;
+  background:rgba(0,0,0,.25);border:1px solid var(--carte-bord);display:grid;place-items:center;
+}
+.btn-retirer:active{transform:scale(.9)}
+.vide{
+  text-align:center;padding:34px 20px;background:var(--carte);
+  border:1.5px dashed var(--carte-bord);border-radius:var(--rayon);color:var(--creme-dim);
+  font-size:16px;line-height:1.6;
+}
+.vide .gros{font-size:52px;display:block;margin-bottom:10px}
+
+/* ---------- Navigation du bas (pouce friendly) ---------- */
+nav.barre-bas{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  display:flex;justify-content:space-around;align-items:stretch;
+  background:linear-gradient(0deg, rgba(50,8,16,.97), rgba(50,8,16,.9));
+  border-top:1px solid rgba(232,182,76,.3);
+  padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+  backdrop-filter:blur(10px);
+}
+nav.barre-bas button{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  font-size:12px;font-weight:700;color:var(--creme-dim);padding:8px 4px;border-radius:14px;
+  position:relative;min-height:56px;justify-content:center;transition:background .2s,color .2s;
+}
+nav.barre-bas button .emoji{font-size:23px}
+nav.barre-bas button.actif{color:var(--or-clair);background:rgba(232,182,76,.14)}
+.badge{
+  position:absolute;top:4px;right:calc(50% - 24px);background:var(--rouge-clair);color:#fff;
+  font-size:11px;font-weight:800;min-width:20px;height:20px;border-radius:99px;
+  display:grid;place-items:center;padding:0 5px;border:1.5px solid var(--creme);
+}
+.badge.cache{display:none}
+
+/* ---------- Fenêtre modale (feuille du bas) ---------- */
+.voile{
+  position:fixed;inset:0;z-index:100;background:rgba(20,2,6,.65);
+  opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(3px);
+}
+.voile.visible{opacity:1;pointer-events:auto}
+.feuille{
+  position:fixed;left:0;right:0;bottom:0;z-index:101;max-width:560px;margin:0 auto;
+  background:linear-gradient(170deg, #8f1d2c, #5c101d);
+  border-top:2px solid var(--or);border-radius:26px 26px 0 0;
+  padding:14px 22px calc(24px + env(safe-area-inset-bottom));
+  transform:translateY(105%);transition:transform .38s cubic-bezier(.3,.9,.3,1);
+  box-shadow:0 -12px 40px rgba(0,0,0,.5);max-height:86vh;overflow-y:auto;
+}
+.feuille.visible{transform:none}
+.feuille .poignee{width:48px;height:5px;border-radius:99px;background:rgba(255,255,255,.35);margin:0 auto 14px}
+.feuille .gros-emoji{font-size:64px;text-align:center;display:block;animation:rebond .6s ease}
+@keyframes rebond{0%{transform:scale(.4)}55%{transform:scale(1.15)}100%{transform:scale(1)}}
+.feuille h3{text-align:center;font-size:23px;margin:8px 0 8px;line-height:1.25}
+.feuille .desc{text-align:center;color:var(--creme-dim);line-height:1.55;font-size:16px;margin:0 0 6px}
+.feuille .meta{text-align:center;margin:12px 0 4px}
+.feuille .ideal{
+  text-align:center;background:rgba(12,58,36,.5);border:1px solid var(--carte-bord);
+  border-radius:14px;padding:10px 14px;font-size:14.5px;margin:12px 0 4px;line-height:1.5;
+}
+.feuille .ideal strong{color:var(--or-clair)}
+
+/* ---------- Toast ---------- */
+#toast{
+  position:fixed;left:50%;bottom:110px;transform:translate(-50%,20px);z-index:200;
+  background:#221006;color:var(--creme);border:1.5px solid var(--or);
+  padding:13px 20px;border-radius:999px;font-weight:700;font-size:15px;
+  opacity:0;pointer-events:none;transition:opacity .3s, transform .3s;
+  box-shadow:var(--ombre);max-width:88vw;text-align:center;
+}
+#toast.visible{opacity:1;transform:translate(-50%,0)}
+
+@media (min-width:520px){
+  .grille-calendrier{gap:11px}
+  .case .dos .nom{font-size:11px}
+  h1{font-size:34px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<!-- Neige dessinée en JavaScript sur ce canvas -->
+<canvas id="neige" aria-hidden="true"></canvas>
+
+<!-- ===================== EN-TÊTE ===================== -->
+<header>
+  <button class="btn-retour invisible" id="btnRetour" aria-label="Retour à l’accueil">←</button>
+  <div class="logo">🎄 Cad<span class="or">oo</span></div>
+  <button class="btn-son" id="btnSon" aria-label="Activer ou couper les sons et vibrations">🔔</button>
+</header>
+
+<main>
+  <!-- ===================== ÉCRAN ACCUEIL ===================== -->
+  <section class="ecran actif" id="ecran-accueil">
+    <h1>Pas d’idée ? Pas de panique. 😅</h1>
+    <p class="sous-titre">Le Père Noël a des stagiaires, et ils ont bossé pour toi. Trouve un cadeau en moins d’une minute, sans transpirer devant les rayons.</p>
+
+    <div class="compte-rebours" id="compteRebours">🎅 Calcul du compte à rebours…</div>
+
+    <button class="grande-carte" data-nav="calendrier">
+      <span class="emoji">📅</span>
+      <span>
+        <span class="titre">Calendrier de l’avent des idées</span>
+        <span class="desc">25 cases, 25 idées cadeaux. Une petite surprise chaque jour de décembre !</span>
+      </span>
+      <span class="fleche">›</span>
+    </button>
+
+    <button class="grande-carte" data-nav="quiz">
+      <span class="emoji">🎁</span>
+      <span>
+        <span class="titre">Un cadeau pour quelqu’un</span>
+        <span class="desc">Réponds à 5 petites questions, on s’occupe du reste. Promis, aucun interrogatoire.</span>
+      </span>
+      <span class="fleche">›</span>
+    </button>
+
+    <button class="btn-surprise" id="btnSurprise">🎲 Surprends-moi !</button>
+
+    <div class="astuce">
+      💡 <strong>Astuce de lutin :</strong> garde tes idées préférées avec le cœur ❤️,
+      puis partage ta liste en un clic depuis « Mes idées ». Fini les captures d’écran floues envoyées à 23 h 58.
+    </div>
+  </section>
+
+  <!-- ===================== ÉCRAN CALENDRIER ===================== -->
+  <section class="ecran" id="ecran-calendrier">
+    <h1>Calendrier de l’avent 🎄</h1>
+    <p class="sous-titre">Chaque jour, une nouvelle idée se débloque. Les cases verrouillées ? Patience, même le Père Noël attend le 25.</p>
+    <div class="calendrier-infos">
+      <span class="pastille" id="infoCalendrier">Chargement…</span>
+      <button class="btn-test" id="btnModeTest">🧪 Mode test : tout débloquer</button>
+    </div>
+    <div class="grille-calendrier" id="grilleCalendrier"></div>
+  </section>
+
+  <!-- ===================== ÉCRAN QUESTIONNAIRE ===================== -->
+  <section class="ecran" id="ecran-quiz">
+    <div class="progression"><div class="barre" id="barreProgression" style="width:20%"></div></div>
+    <div class="etape-texte" id="texteEtape">Question 1 sur 5</div>
+    <div class="question" id="texteQuestion"></div>
+    <p class="question-aide" id="aideQuestion"></p>
+    <div class="choix" id="zoneChoix"></div>
+    <button class="btn-action" id="btnContinuer" disabled>Continuer ➜</button>
+    <button class="btn-secondaire" id="btnRecommencerQuiz">↩️ Tout recommencer</button>
+  </section>
+
+  <!-- ===================== ÉCRAN RÉSULTATS ===================== -->
+  <section class="ecran" id="ecran-resultats">
+    <h1>Et voilà le travail ! 🎉</h1>
+    <p class="sous-titre" id="resumeResultats"></p>
+    <div id="zoneResultats"></div>
+    <button class="btn-action" id="btnAutreIdee">🔀 Autre idée</button>
+    <button class="btn-secondaire" id="btnRefaireQuiz">↩️ Refaire le questionnaire</button>
+    <button class="btn-secondaire" data-nav="favoris">❤️ Voir mes idées gardées</button>
+  </section>
+
+  <!-- ===================== ÉCRAN FAVORIS ===================== -->
+  <section class="ecran" id="ecran-favoris">
+    <h1>Mes idées gardées ❤️</h1>
+    <p class="sous-titre">Ta liste secrète d’idées géniales. Personne ne saura que c’est un algorithme qui a eu l’idée avant toi.</p>
+    <div id="zoneFavoris"></div>
+    <button class="btn-action" id="btnPartager">📋 Copier ma liste pour la partager</button>
+    <button class="btn-secondaire" data-nav="quiz">🎁 Trouver un cadeau pour quelqu’un</button>
+  </section>
+</main>
+
+<!-- ===================== NAVIGATION DU BAS ===================== -->
+<nav class="barre-bas" aria-label="Navigation principale">
+  <button data-nav="accueil" class="actif" id="navAccueil"><span class="emoji">🏠</span>Accueil</button>
+  <button data-nav="calendrier" id="navCalendrier"><span class="emoji">📅</span>Calendrier</button>
+  <button data-nav="favoris" id="navFavoris"><span class="emoji">❤️</span>Mes idées<span class="badge cache" id="badgeFavoris">0</span></button>
+</nav>
+
+<!-- ===================== FENÊTRE MODALE (détail d’une idée) ===================== -->
+<div class="voile" id="voile"></div>
+<div class="feuille" id="feuille" role="dialog" aria-modal="true" aria-labelledby="titreIdee">
+  <div class="poignee"></div>
+  <span class="gros-emoji" id="emojiIdee">🎁</span>
+  <h3 id="titreIdee"></h3>
+  <p class="desc" id="descIdee"></p>
+  <div class="meta"><span class="prix" id="prixIdee"></span></div>
+  <div class="ideal" id="idealIdee"></div>
+  <button class="btn-action" id="btnGarderIdee">❤️ Garder cette idée</button>
+  <button class="btn-secondaire" id="btnAutreSurprise" style="display:none">🎲 Une autre idée au hasard</button>
+  <button class="btn-secondaire" id="btnFermerFeuille">Fermer</button>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   CADOO — Logique de l’application
+   Tout est en local : base d’idées intégrée, aucun appel réseau.
+   ============================================================ */
+
+/* ---------- Petits utilitaires de stockage (robustes) ---------- */
+/* localStorage peut être bloqué (navigation privée…) : on protège tout. */
+function lireStockage(cle, defaut) {
+  try {
+    const brut = localStorage.getItem(cle);
+    return brut === null ? defaut : JSON.parse(brut);
+  } catch (e) { return defaut; }
+}
+function ecrireStockage(cle, valeur) {
+  try { localStorage.setItem(cle, JSON.stringify(valeur)); } catch (e) { /* tant pis, l’appli continue */ }
+}
+
+/* ---------- Constantes du questionnaire ---------- */
+const DESTINATAIRES = [
+  { id: "maman",       label: "Maman",          emoji: "👩" },
+  { id: "papa",        label: "Papa",           emoji: "👨" },
+  { id: "frere_soeur", label: "Frère / sœur",   emoji: "🧑‍🤝‍🧑" },
+  { id: "ami",         label: "Ami(e)",         emoji: "🎉" },
+  { id: "collegue",    label: "Collègue",       emoji: "💼" },
+  { id: "partenaire",  label: "Partenaire",     emoji: "❤️" },
+  { id: "enfant",      label: "Enfant",         emoji: "🧒" },
+  { id: "grandparent", label: "Grand-parent",   emoji: "👵" }
+];
+const AGES = [
+  { id: "enfant", label: "Moins de 12 ans", emoji: "🧒" },
+  { id: "ado",    label: "12 – 17 ans",     emoji: "🧑" },
+  { id: "jeune",  label: "18 – 35 ans",     emoji: "😎" },
+  { id: "adulte", label: "36 – 60 ans",     emoji: "🙂" },
+  { id: "senior", label: "Plus de 60 ans",  emoji: "🌿" }
+];
+const BUDGETS = [
+  { id: "b1", label: "Moins de 15 €", min: 0,  max: 15,       emoji: "🪙" },
+  { id: "b2", label: "15 – 30 €",     min: 15, max: 30,       emoji: "💶" },
+  { id: "b3", label: "30 – 60 €",     min: 30, max: 60,       emoji: "💳" },
+  { id: "b4", label: "60 € et plus",  min: 60, max: Infinity, emoji: "🎁" }
+];
+const INTERETS = [
+  { id: "sport",   label: "Sport",   emoji: "⚽" },
+  { id: "gaming",  label: "Gaming",  emoji: "🎮" },
+  { id: "cuisine", label: "Cuisine", emoji: "👨‍🍳" },
+  { id: "mode",    label: "Mode",    emoji: "👗" },
+  { id: "lecture", label: "Lecture", emoji: "📚" },
+  { id: "voyage",  label: "Voyage",  emoji: "✈️" },
+  { id: "tech",    label: "Tech",    emoji: "💻" },
+  { id: "nature",  label: "Nature",  emoji: "🌿" },
+  { id: "beaute",  label: "Beauté",  emoji: "💄" },
+  { id: "musique", label: "Musique", emoji: "🎵" },
+  { id: "deco",    label: "Déco",    emoji: "🕯️" }
+];
+const STYLES = [
+  { id: "utile",      label: "Utile",      emoji: "🛠️" },
+  { id: "drole",      label: "Drôle",      emoji: "😂" },
+  { id: "romantique", label: "Romantique", emoji: "💕" },
+  { id: "original",   label: "Original",   emoji: "🦄" },
+  { id: "experience", label: "Expérience", emoji: "🎟️" }
+];
+const labelDestinataire = id => (DESTINATAIRES.find(d => d.id === id) || {}).label || id;
+
+/* ============================================================
+   BASE DE DONNÉES D’IDÉES (160 idées)
+   Fabrique compacte : cadeau(emoji, nom, description,
+   prixMin, prixMax, pourQui[], intérêts[], styles[], âges[])
+   ============================================================ */
+function cadeau(emoji, nom, description, prixMin, prixMax, pourQui, interets, styles, ages) {
+  return { emoji, nom, description, prixMin, prixMax, pourQui, interets, styles, ages };
+}
+const ADULTES = ["jeune", "adulte", "senior"];
+const GRANDS  = ["ado", "jeune", "adulte", "senior"];
+
+const IDEES = [
+  /* ----- Cuisine ----- */
+  cadeau("🍫","Coffret de chocolats artisanaux","Des chocolats qui disent « je t’aime » sans avoir à faire de discours.",12,25,["maman","papa","partenaire","grandparent","ami"],["cuisine"],["utile","romantique"],GRANDS),
+  cadeau("🧀","Planche à fromage gravée","Pour les apéros où le fromage est la vedette et les invités des figurants.",18,35,["papa","ami","partenaire","maman"],["cuisine","deco"],["utile","original"],["jeune","adulte","senior"]),
+  cadeau("👨‍🍳","Cours de cuisine en ligne","Un chef dans sa cuisine, des pâtes maison à la clé, zéro vaisselle pour toi.",29,59,["maman","ami","partenaire","frere_soeur"],["cuisine"],["experience","original"],GRANDS),
+  cadeau("🌶️","Kit d’épices du monde","Un tour du monde des saveurs, sans le décalage horaire ni les files à l’aéroport.",14,24,["papa","ami","collegue","frere_soeur"],["cuisine","voyage"],["utile","original"],GRANDS),
+  cadeau("🍕","Pierre à pizza pour four","Des pizzas croustillantes comme en Italie, le tablier à carreaux en option.",25,45,["papa","ami","frere_soeur","partenaire"],["cuisine"],["utile"],GRANDS),
+  cadeau("🥑","Kit SOS apéro improvisé","Olives, tartinables et crackers : l’apéro de secours qui sauve les soirées surprises.",12,20,["ami","collegue","frere_soeur"],["cuisine"],["utile","drole"],GRANDS),
+  cadeau("🍷","Tire-bouchon électrique","Ouvre une bouteille en 5 secondes, avec l’air très professionnel en bonus.",19,39,["papa","ami","partenaire","grandparent"],["cuisine","tech"],["utile"],ADULTES),
+  cadeau("☕","Mug XXL « carburant officiel »","Un mug si grand qu’on pourrait y faire tremper un biscuit entier. Et on le fera.",9,15,["collegue","ami","papa","frere_soeur"],["cuisine"],["drole","utile"],GRANDS),
+  cadeau("🧁","Kit de pâtisserie créative","Moules, douilles et paillettes comestibles : l’atelier gourmand à la maison.",15,30,["maman","enfant","frere_soeur","ami"],["cuisine"],["experience","original"],["enfant","ado","jeune","adulte"]),
+  cadeau("🍯","Miel local et sa cuillère en bois","Douceur artisanale d’un apiculteur du coin : simple, bon, et ça brille sous le sapin.",8,16,["grandparent","maman","collegue"],["cuisine","nature"],["utile"],ADULTES),
+  cadeau("📖","Livre « Recettes en 5 ingrédients »","Cuisiner de bons plats sans transformer la cuisine en chantier archéologique.",12,20,["maman","ami","frere_soeur","collegue"],["cuisine","lecture"],["utile"],GRANDS),
+  cadeau("🍿","Machine à pop-corn rétro","Le cinéma à la maison, l’odeur de pop-corn dans tout le salon comprise.",25,49,["ami","frere_soeur","enfant","partenaire"],["cuisine","gaming"],["drole","experience"],["ado","jeune","adulte"]),
+  cadeau("🫖","Coffret de thés de Noël","Cannelle, orange, épices douces : Noël dans une tasse, à siroter sous un plaid.",14,28,["maman","grandparent","collegue","ami"],["cuisine","beaute"],["utile","romantique"],ADULTES),
+  cadeau("🍋","Presse-agrumes design","Des jus frais le matin, et un bel objet qui trône fièrement sur le plan de travail.",10,20,["maman","grandparent"],["cuisine","deco"],["utile"],["adulte","senior"]),
+  cadeau("🥞","Coffret brunch maison","Confitures artisanales, pâte à tartiner et granola : le dimanche matin en boîte.",18,32,["maman","partenaire","ami"],["cuisine"],["romantique","utile"],GRANDS),
+  cadeau("🍺","Kit pour brasser sa bière","Devenir brasseur amateur : 5 litres de fierté (et d’à-peu-près) faits maison.",30,55,["papa","ami","frere_soeur"],["cuisine"],["experience","original"],["jeune","adulte"]),
+  cadeau("🍷","Atelier dégustation de vins","Apprendre à dire « notes de fruits rouges » avec un air convaincu.",35,65,["papa","partenaire","ami"],["cuisine"],["experience"],ADULTES),
+  cadeau("🧀","Coffret fondue savoyarde pour deux","Du fromage fondu, deux fourchettes, et l’excuse parfaite pour rester au chaud.",30,55,["partenaire","ami"],["cuisine"],["romantique","experience"],["jeune","adulte"]),
+  cadeau("🍰","Atelier pâtisserie en duo","Deux tabliers, un fouet, et un chef qui jugera vos éclairs avec bienveillance.",40,70,["partenaire","maman","ami"],["cuisine"],["experience","romantique"],["jeune","adulte"]),
+  cadeau("🥂","Coffret apéro entre amis","Tout pour un apéro qui commence à 19 h et finit… quand il n’y a plus de chips.",22,40,["ami","frere_soeur","collegue"],["cuisine"],["utile","drole"],["jeune","adulte"]),
+
+  /* ----- Tech ----- */
+  cadeau("🔋","Batterie externe 10 000 mAh","Le cadeau qui sauve les téléphones à 3 % de batterie et les amitiés avec.",15,30,["frere_soeur","ami","collegue","partenaire"],["tech","voyage"],["utile"],GRANDS),
+  cadeau("🎧","Écouteurs sans fil","Sa musique partout, et une excuse en or pour ne pas entendre « on mange ! ».",25,60,["frere_soeur","ami","enfant","partenaire"],["tech","musique"],["utile"],["ado","jeune","adulte"]),
+  cadeau("💡","Ampoule connectée d’ambiance","Une lumière qui change de couleur selon l’humeur, pilotée depuis le canapé.",12,25,["frere_soeur","ami","enfant"],["tech","deco"],["original","utile"],["ado","jeune","adulte"]),
+  cadeau("📱","Support de téléphone ajustable","Parfait pour les visios, les recettes et les vidéos de chats en cuisine.",9,18,["collegue","maman","papa","grandparent"],["tech"],["utile"],GRANDS),
+  cadeau("⌚","Montre connectée","Compter ses pas pour se donner bonne conscience entre deux parts de bûche.",39,79,["papa","maman","frere_soeur","partenaire"],["tech","sport"],["utile"],["jeune","adulte","senior"]),
+  cadeau("🔌","Câble de charge ultra-résistant","Le câble qui survivra à Noël, au chat, et à l’année prochaine.",8,15,["collegue","frere_soeur","ami"],["tech"],["utile","drole"],GRANDS),
+  cadeau("🖱️","Souris ergonomique","Pour les poignets qui travaillent dur à scroller toute la journée.",20,45,["collegue","frere_soeur","papa"],["tech"],["utile"],["jeune","adulte"]),
+  cadeau("📷","Mini-imprimante photo de poche","Imprimer ses souvenirs en 30 secondes, comme au bon vieux temps, en mieux.",69,99,["frere_soeur","partenaire","ami","maman"],["tech"],["original","romantique"],["ado","jeune","adulte"]),
+  cadeau("🎵","Enceinte Bluetooth étanche","Chanter sous la douche avec un son digne d’une salle de concert (ou presque).",25,55,["ami","frere_soeur","enfant"],["tech","musique"],["utile","drole"],["ado","jeune","adulte"]),
+  cadeau("🕹️","Mini-console rétro portable","Des centaines de jeux de son enfance dans la poche : nostalgie garantie.",35,65,["frere_soeur","ami","papa","enfant"],["gaming","tech"],["drole","original"],["enfant","ado","jeune","adulte"]),
+  cadeau("💾","Clé USB en forme rigolote","Stocker ses fichiers dans un sushi en plastique : la classe professionnelle.",10,20,["collegue","frere_soeur","ami"],["tech"],["drole"],GRANDS),
+  cadeau("🌡️","Station météo connectée","Savoir s’il faut un parapluie sans même regarder par la fenêtre. Le luxe.",30,60,["papa","grandparent"],["tech","nature"],["utile"],["adulte","senior"]),
+  cadeau("🔦","Lampe torche rechargeable USB","Petite, puissante, et toujours là quand la cave devient un film d’horreur.",12,22,["papa","grandparent","collegue"],["tech"],["utile"],ADULTES),
+  cadeau("🧲","Range-câbles magnétique de bureau","Fini le plat de spaghettis derrière l’écran : le bureau respire enfin.",9,16,["collegue","frere_soeur"],["tech","deco"],["utile"],["jeune","adulte"]),
+  cadeau("📍","Traqueur d’objets égarés","Pour retrouver ses clés avant qu’elles ne déclarent leur indépendance.",24,35,["papa","maman","grandparent","collegue"],["tech"],["utile"],ADULTES),
+  cadeau("📞","Cadre photo connecté familial","Envoyez vos photos directement dans son salon : Mamie va adorer, c’est promis.",70,110,["grandparent","maman"],["tech"],["romantique","utile"],["senior","adulte"]),
+  cadeau("🌌","Projecteur d’étoiles pour plafond","Un ciel étoilé sans sortir de son lit : effet « waouh » garanti à l’extinction des feux.",25,50,["enfant","partenaire","frere_soeur"],["tech","deco"],["romantique","original"],["enfant","ado","jeune"]),
+
+  /* ----- Gaming & jeux ----- */
+  cadeau("🎲","Jeu de société coopératif","Gagner ensemble ou perdre ensemble : dans les deux cas, on rit beaucoup.",20,40,["ami","frere_soeur","partenaire"],["gaming"],["experience","utile"],["ado","jeune","adulte"]),
+  cadeau("🃏","Jeu de cartes délirant","Le jeu qui transforme un dîner calme en fou rire général en 4 minutes.",10,18,["ami","frere_soeur","collegue"],["gaming"],["drole"],["ado","jeune","adulte"]),
+  cadeau("🧩","Puzzle 1000 pièces illustré","1000 pièces de patience, une seule de perdue sous le canapé (comme toujours).",14,22,["maman","grandparent","ami"],["gaming","deco"],["utile"],["ado","jeune","adulte","senior"]),
+  cadeau("🎮","Carte cadeau gaming","Tu choisis le jeu, on choisit de te faire plaisir : tout le monde gagne.",15,50,["frere_soeur","enfant","ami"],["gaming"],["utile"],["enfant","ado","jeune"]),
+  cadeau("🎧","Casque gaming lumineux","Un son de pro et des LED qui disent « ici, on ne dérange pas ».",35,70,["frere_soeur","enfant","ami"],["gaming","tech"],["utile"],["ado","jeune"]),
+  cadeau("🧱","Set de construction « fleurs éternelles »","Un bouquet qu’on construit soi-même et qui ne fane jamais. Malin.",25,60,["maman","ami","frere_soeur"],["gaming","deco"],["original"],["ado","jeune","adulte"]),
+  cadeau("♟️","Échiquier de voyage magnétique","Des parties d’échecs dans le train sans perdre la moitié des pièces.",15,30,["papa","grandparent","frere_soeur"],["gaming","voyage"],["utile"],["ado","jeune","adulte","senior"]),
+  cadeau("🎯","Fléchettes magnétiques","Viser le mille sans transformer le mur du salon en gruyère.",18,32,["ami","frere_soeur","papa"],["gaming"],["drole"],["ado","jeune","adulte"]),
+  cadeau("🗝️","Escape game à la maison (boîte)","Une heure pour s’évader du salon. Spoiler : la sortie est derrière le canapé.",15,29,["ami","frere_soeur","partenaire"],["gaming"],["experience","original"],["ado","jeune","adulte"]),
+  cadeau("🔐","Escape game en salle pour deux","Enfermés volontairement pendant une heure : le test ultime d’un couple (ou d’une amitié).",50,70,["partenaire","ami","frere_soeur"],["gaming"],["experience"],["jeune","adulte"]),
+  cadeau("🃏","Jeu « Qui paie l’addition ? »","Un jeu de cartes qui désigne le généreux de la soirée. Suspense garanti au dessert.",9,15,["ami","collegue","frere_soeur"],["gaming"],["drole"],["jeune","adulte"]),
+  cadeau("🎲","Soirée quiz musical entre amis","Blind tests et mauvaise foi amicale : la recette d’une soirée réussie.",12,22,["ami","frere_soeur"],["gaming","musique"],["drole","experience"],["ado","jeune","adulte"]),
+
+  /* ----- Lecture ----- */
+  cadeau("📖","Le roman primé de l’année","Celui dont tout le monde parle : elle pourra enfin dire « le livre était mieux ».",17,24,["maman","partenaire","grandparent","ami"],["lecture"],["utile","romantique"],GRANDS),
+  cadeau("🎧","Un mois de livres audio","Des histoires dans les oreilles pendant les trajets, la vaisselle ou la sieste.",15,30,["maman","papa","collegue","grandparent"],["lecture","tech"],["experience","utile"],GRANDS),
+  cadeau("🔖","Marque-page en métal gravé","Parce que corner les pages devrait être passible d’une amende symbolique.",8,14,["maman","collegue","grandparent","ami"],["lecture"],["utile","original"],GRANDS),
+  cadeau("💡","Lampe de lecture nomade","Lire jusqu’à pas d’heure sans réveiller toute la maison.",10,20,["maman","enfant","grandparent"],["lecture"],["utile"],GRANDS),
+  cadeau("🛋️","Plaid douillet spécial lecture","Officiellement pour lire. Officieusement pour la sieste de 16 h.",20,40,["maman","grandparent","partenaire"],["lecture","deco","beaute"],["utile","romantique"],GRANDS),
+  cadeau("✍️","Carnet d’écriture en cuir","Pour les idées de génie qui arrivent toujours sous la douche ou à 3 h du matin.",15,30,["ami","collegue","frere_soeur","partenaire"],["lecture"],["utile","romantique"],["ado","jeune","adulte"]),
+  cadeau("📕","Bande dessinée humoristique","Une BD qui se lit en un soir et se prête pendant des mois.",12,18,["frere_soeur","ami","papa"],["lecture"],["drole"],["ado","jeune","adulte"]),
+  cadeau("🗺️","Atlas insolite grand format","Des cartes qui racontent le monde autrement : à feuilleter sans modération.",25,40,["papa","grandparent","ami"],["lecture","voyage"],["original"],["jeune","adulte","senior"]),
+  cadeau("🧠","Livre d’énigmes et casse-têtes","De quoi occuper les neurones entre la dinde et la bûche.",11,19,["papa","grandparent","frere_soeur"],["lecture","gaming"],["utile"],["ado","jeune","adulte","senior"]),
+  cadeau("☕","Coffret « lecture et chocolat chaud »","Un livre, un mug, du chocolat : le mode d’emploi du bonheur en hiver.",18,30,["maman","partenaire","ami"],["lecture","cuisine"],["romantique","utile"],GRANDS),
+  cadeau("📚","Livre dont tu es le héros","Des aventures où c’est toi qui décides : mourir page 12 ou sauver le royaume page 84.",10,16,["enfant","frere_soeur"],["lecture","gaming"],["experience"],["enfant","ado"]),
+  cadeau("🦉","Guide des oiseaux du jardin","Identifier enfin le petit chanteur de 6 h du matin (et lui pardonner).",15,25,["grandparent","papa","maman"],["lecture","nature"],["utile"],["adulte","senior"]),
+  cadeau("🔎","Coffret mots croisés géants + loupe","Des grilles XXL pour les champion(ne)s du dimanche matin.",12,22,["grandparent"],["lecture"],["utile"],["senior"]),
+
+  /* ----- Beauté & bien-être ----- */
+  cadeau("🕯️","Bougie parfumée artisanale","Une bougie qui sent la boutique chic, sans le prix de la boutique chic.",12,25,["maman","collegue","ami","partenaire"],["beaute","deco"],["utile","romantique"],GRANDS),
+  cadeau("🧴","Coffret de soins naturels visage","Des produits doux et français pour un teint de retour de vacances.",25,50,["maman","partenaire","frere_soeur"],["beaute"],["utile"],["jeune","adulte"]),
+  cadeau("🛁","Bombes de bain effervescentes","Le bain devient un spectacle : ça mousse, ça pétille, ça détend.",9,18,["maman","frere_soeur","enfant","ami"],["beaute"],["drole","utile"],["enfant","ado","jeune","adulte"]),
+  cadeau("💆","Mini-masseur électrique","Un masseur de poche pour les épaules qui ont porté toute l’année (et les courses).",20,40,["maman","papa","collegue"],["beaute","tech"],["utile"],["jeune","adulte","senior"]),
+  cadeau("🧦","Chaussettes pilou-pilou","Le summum du confort : on ne juge pas, on enfourne ses pieds dedans.",8,15,["maman","frere_soeur","ami","collegue"],["beaute","mode"],["drole","utile"],GRANDS),
+  cadeau("🌿","Kit spa à la maison","Masque, gommage et sérénité : le spa vient à elle, peignoir non fourni.",15,30,["maman","partenaire","frere_soeur"],["beaute"],["experience","utile"],["ado","jeune","adulte"]),
+  cadeau("💤","Masque de nuit en soie","Dormir comme une star, même dans un train de nuit ou un salon bruyant.",12,22,["partenaire","maman","ami"],["beaute","voyage"],["utile","romantique"],["jeune","adulte"]),
+  cadeau("💅","Kit manucure complet","Des ongles impeccables sans rendez-vous ni petite musique d’attente.",15,30,["frere_soeur","maman","ami"],["beaute"],["utile"],["ado","jeune","adulte"]),
+  cadeau("🧖","Peignoir cocooning tout doux","Sortir de la douche et entrer directement dans un nuage. À vie.",35,65,["maman","partenaire","grandparent"],["beaute"],["utile","romantique"],["jeune","adulte","senior"]),
+  cadeau("🌸","Diffuseur et huiles essentielles","Une maison qui sent le spa scandinave en appuyant sur un bouton.",18,35,["maman","collegue","grandparent"],["beaute","deco"],["utile"],ADULTES),
+  cadeau("💆‍♀️","Massage d’une heure en institut","Soixante minutes où quelqu’un d’autre s’occupe de tout. Le rêve éveillé.",45,70,["maman","partenaire","grandparent"],["beaute"],["experience","romantique"],["jeune","adulte","senior"]),
+  cadeau("🧖‍♀️","Entrée au spa et hammam","Une journée à buller pendant que le monde continue sans nous. Santé !",25,50,["maman","partenaire","ami"],["beaute"],["experience"],["jeune","adulte"]),
+  cadeau("🧸","Peluche bouillotte","Un câlin tout chaud qui soulage les maux de ventre et les coups de blues.",15,25,["enfant","frere_soeur","partenaire"],["beaute"],["utile","drole"],["enfant","ado","jeune"]),
+
+  /* ----- Sport & plein air ----- */
+  cadeau("🏃","Ceinture de course pour smartphone","Courir léger, téléphone en sécurité, playlist à fond.",12,22,["frere_soeur","ami","papa"],["sport"],["utile"],["ado","jeune","adulte"]),
+  cadeau("💧","Gourde isotherme 1 litre","De l’eau fraîche pendant 24 h, même au bureau sous les néons.",15,28,["collegue","ami","frere_soeur","papa"],["sport"],["utile"],GRANDS),
+  cadeau("🧢","Bonnet de course réfléchissant","Chaud aux oreilles, visible des voitures : courir en hiver sans y laisser un orteil.",14,24,["papa","frere_soeur","ami"],["sport"],["utile"],["jeune","adulte"]),
+  cadeau("🏋️","Élastiques de musculation (lot de 3)","Une salle de sport qui tient dans un tiroir. Aucune excuse ne survit à ça.",12,25,["frere_soeur","ami","collegue"],["sport"],["utile"],["ado","jeune","adulte"]),
+  cadeau("🚴","Kit de réparation vélo nomade","Crever loin de chez soi ne sera plus qu’une anecdote de soirée.",15,30,["papa","frere_soeur","ami"],["sport"],["utile"],["jeune","adulte"]),
+  cadeau("🎒","Sac banane imperméable de rando","Le retour en grâce de la banane : pratique, étanche, étonnamment stylée.",18,32,["ami","frere_soeur","partenaire"],["sport","voyage","nature"],["utile"],["jeune","adulte"]),
+  cadeau("⛺","Hamac de voyage ultra-léger","Deux arbres, dix minutes, une sieste de légende.",25,45,["ami","frere_soeur","partenaire"],["nature","voyage"],["experience","utile"],["jeune","adulte"]),
+  cadeau("🥾","Chaussettes de randonnée en laine","Des pieds au sec et sans ampoules : le vrai luxe du randonneur.",12,20,["papa","grandparent","ami"],["sport","nature"],["utile"],["jeune","adulte","senior"]),
+  cadeau("🏊","Lunettes de piscine anti-buée","Voir le bout de la ligne d’eau, c’est déjà la moitié de la performance.",12,25,["frere_soeur","ami","enfant"],["sport"],["utile"],["enfant","ado","jeune","adulte"]),
+  cadeau("🧗","Séance découverte d’escalade","Grimper, transpirer, et regarder le sol avec beaucoup de respect.",15,30,["ami","frere_soeur","enfant"],["sport"],["experience"],["enfant","ado","jeune","adulte"]),
+  cadeau("🌳","Sortie accrobranche entre amis","Tyroliennes et fous rires à 10 mètres du sol : souvenirs garantis.",20,35,["ami","frere_soeur","enfant"],["sport","nature"],["experience"],["enfant","ado","jeune","adulte"]),
+  cadeau("🏎️","Session de karting","Quelques tours de piste pour régler définitivement qui conduit le mieux.",25,45,["frere_soeur","ami","papa"],["sport"],["experience","drole"],["ado","jeune","adulte"]),
+  cadeau("🎾","Set de raquettes de plage","Pour préparer dès maintenant sa revanche de l’été prochain.",14,24,["ami","enfant","frere_soeur"],["sport"],["utile"],["enfant","ado","jeune","adulte"]),
+
+  /* ----- Voyage ----- */
+  cadeau("🧳","Cubes de rangement pour valise","Une valise organisée comme un tiroir de Marie Kondo, même au retour.",15,28,["maman","ami","collegue","partenaire"],["voyage"],["utile"],GRANDS),
+  cadeau("😴","Oreiller de voyage à mémoire de forme","Dormir dans l’avion sans réveil « cou de travers » en souvenir.",18,30,["papa","maman","ami"],["voyage"],["utile"],GRANDS),
+  cadeau("🗺️","Carte du monde à gratter","Gratter chaque pays visité : la déco qui raconte ses voyages.",15,28,["ami","frere_soeur","partenaire"],["voyage","deco"],["original"],["ado","jeune","adulte"]),
+  cadeau("📔","Carnet de voyage illustré","Noter les adresses, les ratés et les plus beaux couchers de soleil.",12,20,["ami","partenaire","frere_soeur"],["voyage","lecture"],["utile","romantique"],["ado","jeune","adulte"]),
+  cadeau("🔒","Cadenas à code pour bagages","Simple, solide, et il évite le fameux « c’est quoi déjà, le code ? » au cadenas à clé.",8,14,["papa","ami","collegue"],["voyage"],["utile"],GRANDS),
+  cadeau("🏷️","Étiquette de bagage originale","Repérer sa valise en 2 secondes sur le tapis, avec le sourire en plus.",6,12,["collegue","ami","frere_soeur"],["voyage"],["drole"],GRANDS),
+  cadeau("🌍","Guide de sa ville de rêve","Préparer le prochain voyage depuis son canapé, carte et croissant à la main.",14,22,["ami","partenaire","maman"],["voyage","lecture"],["utile","romantique"],GRANDS),
+  cadeau("🎧","Casque anti-bruit pliable","Le silence en cabine, même avec un bébé rangée 12 et un voisin bavard.",30,60,["collegue","papa","partenaire"],["voyage","tech"],["utile"],["jeune","adulte"]),
+  cadeau("🧴","Kit de flacons de voyage réutilisables","Ses produits préférés en cabine, sans vider son shampoing à la sécurité.",9,16,["maman","ami","collegue"],["voyage","beaute"],["utile"],GRANDS),
+  cadeau("📸","Appareil photo jetable rétro","36 photos, zéro écran, et la surprise du développement comme avant.",15,25,["frere_soeur","ami","partenaire"],["voyage"],["original","drole"],["ado","jeune","adulte"]),
+
+  /* ----- Nature & jardin ----- */
+  cadeau("🌱","Kit d’herbes aromatiques d’intérieur","Basilic, menthe et coriandre sur le rebord de la fenêtre, fierté incluse.",15,28,["maman","grandparent","collegue"],["nature","cuisine"],["utile","experience"],GRANDS),
+  cadeau("🐝","Hôtel à insectes","Un palace 5 étoiles pour abeilles solitaires et coccinelles de passage.",14,26,["grandparent","papa","enfant"],["nature","deco"],["original"],["enfant","adulte","senior"]),
+  cadeau("🔭","Jumelles d’observation","Espionner les oiseaux du jardin (et un peu les voisins, chut).",30,60,["papa","grandparent","enfant"],["nature"],["utile"],["enfant","adulte","senior"]),
+  cadeau("🪴","Terrarium à composer soi-même","Un mini-jardin sous verre qui survit même aux pouces pas verts.",25,45,["maman","ami","frere_soeur"],["nature","deco"],["experience","original"],["ado","jeune","adulte"]),
+  cadeau("🌻","Graines insolites à planter","Tomates noires, courges rigolotes : le potager devient une aventure.",6,12,["grandparent","enfant","collegue"],["nature"],["original","drole"],["enfant","adulte","senior"]),
+  cadeau("🐦","Nichoir à oiseaux en bois","Un petit chalet pour mésanges, livré sans frais de notaire.",16,28,["grandparent","papa","maman"],["nature","deco"],["utile"],["adulte","senior"]),
+  cadeau("🔥","Brasero de table","Des guimauves grillées sur la terrasse, même en plein hiver.",20,40,["papa","ami","partenaire"],["nature","cuisine"],["experience"],["jeune","adulte"]),
+  cadeau("🍄","Kit de culture de champignons","Faire pousser ses pleurotes dans la cuisine : étrange, délicieux, addictif.",18,30,["ami","frere_soeur","maman"],["nature","cuisine"],["original","experience"],["ado","jeune","adulte"]),
+  cadeau("🧑‍🌾","Kit de jardinage ergonomique","Des outils pensés pour les dos et les genoux qui ont déjà beaucoup donné.",20,35,["grandparent","papa","maman"],["nature"],["utile"],["adulte","senior"]),
+  cadeau("🪴","Plante dépolluante facile d’entretien","Elle purifie l’air et pardonne les oublis d’arrosage. Une sainte.",10,20,["collegue","maman","ami"],["nature","deco"],["utile"],GRANDS),
+
+  /* ----- Musique ----- */
+  cadeau("🎸","Capodastre et médiators originaux","Le petit kit qui change le son d’une guitare et le style d’un guitariste.",8,15,["frere_soeur","ami","papa"],["musique"],["utile"],["ado","jeune","adulte"]),
+  cadeau("🎵","Vinyle d’un album culte","Le crépitement, la grande pochette, le rituel : la musique comme une cérémonie.",20,32,["papa","partenaire","ami"],["musique"],["romantique","original"],["jeune","adulte","senior"]),
+  cadeau("🎹","Ukulélé pour débutants","Quatre cordes, trois accords, et déjà l’impression d’être à Hawaï.",35,65,["frere_soeur","enfant","ami"],["musique"],["experience","original"],["enfant","ado","jeune","adulte"]),
+  cadeau("🎤","Micro karaoké Bluetooth","Transformer le salon en scène de télé-crochet, voisins compréhensifs recommandés.",20,40,["ami","frere_soeur","enfant"],["musique"],["drole","experience"],["enfant","ado","jeune","adulte"]),
+  cadeau("🎶","Un mois de cours de musique en ligne","Apprendre le piano ou la guitare à son rythme, en pyjama si besoin.",20,40,["frere_soeur","enfant","partenaire"],["musique"],["experience"],["ado","jeune","adulte"]),
+  cadeau("🪘","Kalimba en bois","Un instrument doux et hypnotique, impossible à jouer faux (ou presque).",25,45,["ami","partenaire","maman"],["musique"],["original","romantique"],["ado","jeune","adulte"]),
+  cadeau("🎟️","Deux places de concert","Sa musique préférée en vrai, avec les frissons qui vont avec.",30,80,["partenaire","ami","frere_soeur"],["musique"],["experience","romantique"],["jeune","adulte"]),
+  cadeau("📻","Radio rétro Bluetooth","Le look des années 60, le son d’aujourd’hui : mamie approuve, les ados aussi.",35,60,["grandparent","papa","maman"],["musique","tech","deco"],["original"],["adulte","senior"]),
+
+  /* ----- Mode ----- */
+  cadeau("🧣","Écharpe douce oversize","Une écharpe-couverture portable : on s’y perd, on y reste.",18,35,["maman","partenaire","grandparent"],["mode"],["utile","romantique"],GRANDS),
+  cadeau("🧤","Gants tactiles chauds","Répondre à ses messages sans transformer ses doigts en glaçons.",12,22,["papa","collegue","frere_soeur"],["mode"],["utile"],GRANDS),
+  cadeau("👜","Tote bag illustré original","Pour les courses, les livres et les « au cas où » de la vie quotidienne.",12,20,["maman","ami","collegue","frere_soeur"],["mode"],["utile","original"],["ado","jeune","adulte"]),
+  cadeau("🧦","Coffret de chaussettes fun","Avocats, chats ou dinosaures : des pieds qui ont enfin quelque chose à dire.",12,20,["frere_soeur","ami","collegue","papa"],["mode"],["drole"],GRANDS),
+  cadeau("⌚","Bracelet gravé personnalisé","Un prénom, une date, un mot doux : discret, élégant, impossible à rater.",20,45,["partenaire","maman"],["mode"],["romantique"],["jeune","adulte"]),
+  cadeau("🧶","Bonnet tricoté main à pompon","Tricoté avec amour (et un tuto vidéo), il a ce petit charme en plus.",15,28,["maman","grandparent","enfant"],["mode"],["utile","romantique"],["enfant","ado","adulte","senior"]),
+  cadeau("👕","T-shirt à citation drôle","Une phrase culte sur le torse : parfait pour briser la glace en soirée.",15,25,["frere_soeur","ami","papa"],["mode"],["drole"],["ado","jeune","adulte"]),
+  cadeau("💍","Bague ajustable minimaliste","Élégante, discrète, et elle va à tous les doigts (c’est le principe).",15,30,["partenaire","frere_soeur"],["mode","beaute"],["romantique"],["ado","jeune","adulte"]),
+  cadeau("🎄","Pull de Noël délirant","Assumer le pull moche avec panache : c’est ça, l’esprit de Noël.",20,35,["ami","frere_soeur","collegue","papa"],["mode"],["drole"],["ado","jeune","adulte"]),
+
+  /* ----- Déco ----- */
+  cadeau("🖼️","Affiche encadrée d’artiste local","Un bout de sa ville ou de nature au mur, et une belle histoire à raconter.",20,40,["ami","maman","partenaire"],["deco"],["original","romantique"],["jeune","adulte"]),
+  cadeau("💡","Guirlande lumineuse cocooning","La lumière chaude qui transforme n’importe quel salon en chalet cosy.",12,24,["maman","frere_soeur","ami"],["deco"],["utile"],["ado","jeune","adulte"]),
+  cadeau("🕰️","Réveil simulateur d’aube","Se réveiller avec un lever de soleil plutôt qu’une alarme de chantier.",30,55,["papa","maman","collegue"],["deco","tech"],["utile"],["jeune","adulte","senior"]),
+  cadeau("🌙","Lampe lune imprimée en 3D","La Lune sur sa table de nuit, télécommande incluse, loups-garous non inclus.",18,35,["enfant","partenaire","frere_soeur"],["deco"],["romantique","original"],["enfant","ado","jeune","adulte"]),
+  cadeau("🧸","Coussin personnalisé avec photo","Sa tête (ou celle du chat) sur un coussin : ridicule, donc indispensable.",18,30,["partenaire","ami","maman"],["deco"],["drole","romantique"],["ado","jeune","adulte"]),
+  cadeau("🗓️","Calendrier perpétuel en bois","Changer la date chaque matin : le petit rituel qui ne tombe jamais en panne.",15,28,["grandparent","papa","collegue"],["deco"],["utile"],["adulte","senior"]),
+  cadeau("🌈","Attrape-soleil en vitrail","Des arcs-en-ciel dans la pièce dès que le soleil pointe le bout du nez.",14,26,["maman","grandparent"],["deco","nature"],["original"],["adulte","senior"]),
+  cadeau("🏮","Diffuseur de parfum d’ambiance","Une maison qui sent bon en continu, sans flamme ni prise de tête.",16,30,["maman","collegue","grandparent"],["deco","beaute"],["utile"],ADULTES),
+  cadeau("🎄","Boule de Noël personnalisée","Son prénom doré dans le sapin : elle y restera des années.",10,18,["maman","grandparent","ami","collegue"],["deco"],["romantique","original"],GRANDS),
+
+  /* ----- Expériences à vivre ----- */
+  cadeau("🎟️","Deux places de cinéma","Un film, du pop-corn, et quelqu’un à côté pour chuchoter « c’est lui le méchant ».",16,26,["partenaire","ami","frere_soeur"],["gaming"],["experience","romantique"],["ado","jeune","adulte"]),
+  cadeau("🍽️","Dîner dans un restaurant insolite","Manger dans le noir, sur un toit ou dans une yourte : dîner et anecdote en un.",50,90,["partenaire","maman"],["cuisine"],["experience","romantique"],["jeune","adulte"]),
+  cadeau("✈️","Séance de simulateur de vol","Piloter un avion de ligne sans quitter le sol (et sans faire peur à personne).",49,89,["papa","frere_soeur","ami"],["tech"],["experience","original"],["ado","jeune","adulte"]),
+  cadeau("🎨","Atelier poterie ou peinture","Repartir avec une œuvre d’art (ou un cendrier bancal plein de charme).",30,60,["maman","ami","partenaire","frere_soeur"],["deco"],["experience","original"],["ado","jeune","adulte"]),
+  cadeau("🎭","Places de théâtre ou spectacle","Une soirée qui nourrit l’esprit mieux qu’un énième scroll sur le canapé.",30,70,["maman","partenaire","grandparent"],["lecture"],["experience","romantique"],["jeune","adulte","senior"]),
+  cadeau("📸","Séance photo en famille","De vraies belles photos où tout le monde a les yeux ouverts. Un exploit.",60,120,["maman","grandparent","partenaire"],["deco"],["romantique","experience"],["adulte","senior"]),
+  cadeau("🏕️","Nuit insolite en cabane","Dormir dans les arbres ou une bulle transparente : l’aventure sans l’inconfort.",80,150,["partenaire"],["voyage","nature"],["experience","romantique"],["jeune","adulte"]),
+  cadeau("💌","Bon pour une journée surprise","Une journée entièrement organisée par toi : petit budget, effet garanti.",5,20,["partenaire","maman","ami"],["voyage"],["experience","romantique"],GRANDS),
+
+  /* ----- DIY, drôle & original ----- */
+  cadeau("🧶","Kit tricot pour débutants","Écharpe maison en vue : débutée en janvier, offerte à Noël prochain.",15,28,["maman","grandparent","frere_soeur"],["deco"],["experience","utile"],["ado","jeune","adulte","senior"]),
+  cadeau("🎨","Kit aquarelle de voyage","Peindre les paysages plutôt que les photographier : révolution douce.",18,32,["ami","maman","frere_soeur"],["deco","voyage"],["experience","original"],["ado","jeune","adulte"]),
+  cadeau("🕯️","Kit de fabrication de bougies","Fabriquer ses propres bougies parfumées et les offrir… ou tout garder.",20,35,["maman","ami","frere_soeur"],["deco","beaute"],["experience"],["ado","jeune","adulte"]),
+  cadeau("🧼","Kit de savons artisanaux maison","Des savons aux parfums fous, faits main, à offrir ou à collectionner.",18,30,["maman","frere_soeur"],["beaute"],["experience","original"],["ado","jeune","adulte"]),
+  cadeau("✒️","Kit de calligraphie","Écrire « Joyeux Noël » comme un moine copiste, la sérénité en plus.",15,28,["maman","grandparent","ami"],["lecture"],["experience","utile"],["ado","jeune","adulte","senior"]),
+  cadeau("🧰","Kit SOS lendemains de fête","Masque hydratant, thé détox et lunettes de soleil : on ne juge pas, on dépanne.",12,20,["ami","frere_soeur","collegue"],["beaute"],["drole"],["jeune","adulte"]),
+  cadeau("🎁","Kit Père Noël secret prêt à offrir","Le cadeau de secours élégant pour le tirage au sort de dernière minute au bureau.",10,15,["collegue"],["deco"],["utile","drole"],["jeune","adulte"]),
+  cadeau("🐱","Coffret pour gâter son chat","Herbe à chat, jouets et friandises : le vrai patron de la maison approuve.",12,22,["ami","maman","frere_soeur"],["nature"],["utile","drole"],GRANDS),
+  cadeau("🐶","Jouet interactif pour chien","Occuper Médor pendant des heures (et sauver les chaussures au passage).",10,20,["ami","papa","frere_soeur"],["nature"],["utile"],["jeune","adulte"]),
+  cadeau("💌","52 lettres « à ouvrir quand… »","Une lettre par semaine pendant un an : le cadeau qui dure plus longtemps que les chocolats.",10,20,["partenaire","maman"],["lecture"],["romantique"],["ado","jeune","adulte"]),
+  cadeau("⭐","Une étoile à son nom","Un certificat, des coordonnées, et une étoile rien qu’à elle dans le ciel.",20,40,["partenaire"],["nature"],["romantique","original"],["ado","jeune","adulte"]),
+  cadeau("💻","Repose-poignets rigolo de bureau","Un petit nuage ou croissant pour reposer ses poignets avec style.",10,18,["collegue","frere_soeur"],["tech"],["drole","utile"],["jeune","adulte"]),
+  cadeau("☕","Mug « meilleur collègue (selon lui-même) »","Le mug qui déclenche des sourires à chaque pause café au bureau.",8,14,["collegue"],["cuisine"],["drole"],["jeune","adulte"]),
+
+  /* ----- Spécial enfants ----- */
+  cadeau("🧪","Kit d’expériences scientifiques","Volcans en éruption et potions colorées : la science devient un jeu d’enfant.",18,32,["enfant"],["tech"],["experience","original"],["enfant","ado"]),
+  cadeau("🎨","Valise de coloriage géante","Feutres, crayons et carnets : de quoi colorier jusqu’à l’été prochain.",14,24,["enfant"],["deco"],["utile"],["enfant","ado"]),
+  cadeau("🏰","Château fort en bois à construire","Des heures de construction, puis des batailles épiques sur le tapis du salon.",25,45,["enfant"],["gaming"],["experience"],["enfant","ado"]),
+  cadeau("🌙","Veilleuse en forme d’animal","Un compagnon lumineux qui chasse les monstres sous le lit, garanti sans bruit.",14,24,["enfant"],["deco"],["utile"],["enfant"]),
+  cadeau("📚","Album jeunesse « cherche et trouve »","Des pages géantes pleines de détails cachés : les parents aussi vont s’y perdre.",12,18,["enfant"],["lecture"],["utile"],["enfant"]),
+  cadeau("🎁","Album photo de famille relié","Les plus beaux souvenirs imprimés et reliés : le cadeau qui fait pleurer (de joie).",25,50,["grandparent","maman"],["deco"],["romantique"],["adulte","senior"]),
+  cadeau("🖥️","Kit bureau premium","Support d’écran, tapis en cuir et lampe design : le bureau qui donne envie de travailler (presque).",55,90,["collegue","papa","frere_soeur"],["tech","deco"],["utile","original"],["jeune","adulte"])
+];
+
+/* Les 25 idées du calendrier : indices variés dans la base ci-dessus */
+const CALENDRIER = [1, 18, 33, 50, 67, 84, 101, 118, 135, 9, 26, 43, 60, 77, 94, 111, 128, 145, 155, 150, 5, 40, 88, 122, 140];
+
+/* ============================================================
+   ÉTAT DE L’APPLICATION
+   ============================================================ */
+let favoris = lireStockage("cadoo:favoris", []);          // [{ id: indexIdée, pour: "maman" | null }]
+let casesOuvertes = lireStockage("cadoo:casesOuvertes", []); // [numéros 1..25]
+let modeTest = false;
+let sonActif = lireStockage("cadoo:son", true);
+let ecranActuel = "accueil";
+let ideeOuverte = null;        // idée affichée dans la feuille modale
+let contexteIdee = null;       // { pour, surprise } selon l’origine
+
+/* Raccourcis DOM */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+/* ---------- Sons (WebAudio, aucun fichier externe) & vibrations ---------- */
+let contexteAudio = null;
+function petitSon() {
+  if (!sonActif) return;
+  try {
+    contexteAudio = contexteAudio || new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = contexteAudio, t = ctx.currentTime;
+    // Deux petites notes festives façon "grelots"
+    [880, 1318].forEach((frequence, i) => {
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.type = "sine"; osc.frequency.value = frequence;
+      gain.gain.setValueAtTime(0.0001, t + i * 0.09);
+      gain.gain.exponentialRampToValueAtTime(0.12, t + i * 0.09 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + i * 0.09 + 0.28);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(t + i * 0.09); osc.stop(t + i * 0.09 + 0.3);
+    });
+  } catch (e) { /* le son est un bonus, jamais un blocage */ }
+}
+function petiteVibration(ms) {
+  if (!sonActif) return;
+  try { if (navigator.vibrate) navigator.vibrate(ms); } catch (e) { /* idem */ }
+}
+
+/* ---------- Toast (petit message temporaire) ---------- */
+let minuteurToast = null;
+function toast(message) {
+  const el = $("#toast");
+  el.textContent = message;
+  el.classList.add("visible");
+  clearTimeout(minuteurToast);
+  minuteurToast = setTimeout(() => el.classList.remove("visible"), 2600);
+}
+
+/* ============================================================
+   NAVIGATION ENTRE ÉCRANS
+   ============================================================ */
+const ECRANS = ["accueil", "calendrier", "quiz", "resultats", "favoris"];
+function afficherEcran(nom) {
+  ecranActuel = nom;
+  ECRANS.forEach(e => $("#ecran-" + e).classList.toggle("actif", e === nom));
+  $("#btnRetour").classList.toggle("invisible", nom === "accueil");
+  // Barre du bas : on met en évidence l’onglet correspondant
+  const correspondances = { accueil: "navAccueil", calendrier: "navCalendrier", favoris: "navFavoris" };
+  ["navAccueil", "navCalendrier", "navFavoris"].forEach(id => $("#" + id).classList.remove("actif"));
+  if (correspondances[nom]) $("#" + correspondances[nom]).classList.add("actif");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  if (nom === "favoris") afficherFavoris();
+}
+
+/* ============================================================
+   COMPTE À REBOURS AVANT NOËL
+   ============================================================ */
+function majCompteRebours() {
+  const el = $("#compteRebours");
+  const maintenant = new Date();
+  const jour = maintenant.getDate(), mois = maintenant.getMonth(); // décembre = 11
+  if (mois === 11 && jour === 25) {
+    el.innerHTML = "🎄 <span>C’est Noël aujourd’hui, joyeux Noël !</span>";
+    return;
+  }
+  let noel = new Date(maintenant.getFullYear(), 11, 25);
+  if (maintenant > noel) noel = new Date(maintenant.getFullYear() + 1, 11, 25);
+  const jours = Math.ceil((noel - maintenant) / 86400000);
+  if (mois === 11 && jour > 25) {
+    el.innerHTML = `🎅 Noël vient de passer… prochain dans <span class="jours">${jours} jours</span>, on a le temps de s’entraîner !`;
+  } else {
+    el.innerHTML = `🎅 Plus que <span class="jours">${jours} jour${jours > 1 ? "s" : ""}</span> avant Noël !`;
+  }
+}
+
+/* ============================================================
+   FONCTION 1 — CALENDRIER DE L’AVENT
+   ============================================================ */
+/* Nombre de cases ouvrables aujourd’hui (1er au 25 décembre) */
+function jourMaxCalendrier() {
+  if (modeTest) return 25;
+  const maintenant = new Date();
+  if (maintenant.getMonth() === 11) return Math.min(maintenant.getDate(), 25);
+  if (maintenant.getMonth() < 11) return 0;   // avant décembre : tout est verrouillé
+  return 25;
+}
+
+function afficherCalendrier() {
+  const grille = $("#grilleCalendrier");
+  grille.innerHTML = "";
+  const max = jourMaxCalendrier();
+  const aujourdHui = new Date();
+  const estAujourdhui = n => aujourdHui.getMonth() === 11 && aujourdHui.getDate() === n;
+
+  CALENDRIER.forEach((indexIdee, i) => {
+    const numero = i + 1;
+    const idee = IDEES[indexIdee];
+    const ouverte = casesOuvertes.includes(numero);
+    const deverrouillee = numero <= max;
+
+    const bouton = document.createElement("button");
+    bouton.className = "case" + (ouverte ? " ouvert" : "") + (!deverrouillee ? " verrouille" : "") + (estAujourdhui(numero) && !ouverte ? " aujourdhui" : "");
+    bouton.setAttribute("aria-label", ouverte ? `Case ${numero} : ${idee.nom}` : `Case ${numero}${deverrouillee ? "" : " (verrouillée)"}`);
+    bouton.innerHTML = `
+      <span class="dos">
+        <span class="emoji">${idee.emoji}</span>
+        <span class="nom">${idee.nom}</span>
+      </span>
+      ${ouverte ? `<span class="btn-coeur-mini" data-coeur-case="${indexIdee}" aria-hidden="true">${estFavori(indexIdee) ? "❤️" : "🤍"}</span>` : ""}
+      <span class="porte">
+        <span class="numero">${numero}</span>
+        ${!deverrouillee ? '<span class="cadenas">🔒</span>' : ""}
+      </span>`;
+
+    bouton.addEventListener("click", () => ouvrirCase(numero, bouton));
+    grille.appendChild(bouton);
+  });
+
+  // Cœurs miniature sur les cases déjà ouvertes
+  $$("#grilleCalendrier [data-coeur-case]").forEach(el => {
+    el.addEventListener("click", ev => {
+      ev.stopPropagation();
+      basculerFavori(Number(el.dataset.coeurCase), "Calendrier de l’avent");
+      afficherCalendrier();
+    });
+  });
+
+  // Texte d’info au-dessus de la grille
+  const info = $("#infoCalendrier");
+  if (modeTest) info.textContent = "🧪 Mode test : les 25 cases sont ouvertes, profite !";
+  else if (max === 0) info.textContent = "🔒 Le calendrier s’ouvre le 1er décembre… ou avec le mode test 😉";
+  else if (max >= 25) info.textContent = "🎄 Toutes les cases sont disponibles, joyeux Noël !";
+  else info.textContent = `🎅 Aujourd’hui, tu peux ouvrir jusqu’à la case ${max}.`;
+}
+
+function ouvrirCase(numero, bouton) {
+  const max = jourMaxCalendrier();
+  if (numero > max) {
+    // Case verrouillée : on secoue et on prévient gentiment
+    bouton.classList.remove("secoue");
+    void bouton.offsetWidth; // relance l’animation
+    bouton.classList.add("secoue");
+    petiteVibration(60);
+    toast(`Patience ! 🎅 Cette case s’ouvre le ${numero} décembre.`);
+    return;
+  }
+  const indexIdee = CALENDRIER[numero - 1];
+  if (!casesOuvertes.includes(numero)) {
+    casesOuvertes.push(numero);
+    ecrireStockage("cadoo:casesOuvertes", casesOuvertes);
+    petitSon();
+    petiteVibration(40);
+    afficherCalendrier();
+    // Petit délai pour laisser la porte s’ouvrir avant la fiche détail
+    setTimeout(() => ouvrirFiche(IDEES[indexIdee], indexIdee, { pour: "Calendrier de l’avent" }), 480);
+  } else {
+    ouvrirFiche(IDEES[indexIdee], indexIdee, { pour: "Calendrier de l’avent" });
+  }
+}
+
+/* ============================================================
+   FICHE DÉTAIL D’UNE IDÉE (feuille modale)
+   ============================================================ */
+function prixTexte(idee) { return `Environ ${idee.prixMin} – ${idee.prixMax} €`; }
+
+function ouvrirFiche(idee, index, contexte) {
+  ideeOuverte = index;
+  contexteIdee = contexte || {};
+  $("#emojiIdee").textContent = idee.emoji;
+  $("#titreIdee").textContent = idee.nom;
+  $("#descIdee").textContent = idee.description;
+  $("#prixIdee").textContent = "💶 " + prixTexte(idee);
+  const pourLabels = idee.pourQui.slice(0, 3).map(labelDestinataire).join(", ");
+  $("#idealIdee").innerHTML = `🎯 <strong>Idéal pour :</strong> ${pourLabels}<br>✨ ${idee.interets.map(i => (INTERETS.find(x => x.id === i) || {}).label || i).join(" • ")}`;
+  $("#btnAutreSurprise").style.display = contexteIdee.surprise ? "flex" : "none";
+  majBoutonGarder();
+  $("#voile").classList.add("visible");
+  $("#feuille").classList.add("visible");
+}
+function fermerFiche() {
+  $("#voile").classList.remove("visible");
+  $("#feuille").classList.remove("visible");
+}
+function majBoutonGarder() {
+  if (ideeOuverte === null) return;
+  $("#btnGarderIdee").textContent = estFavori(ideeOuverte) ? "💔 Retirer de mes idées" : "❤️ Garder cette idée";
+}
+
+/* ============================================================
+   FAVORIS
+   ============================================================ */
+function estFavori(index) { return favoris.some(f => f.id === index); }
+
+function basculerFavori(index, pour) {
+  if (estFavori(index)) {
+    favoris = favoris.filter(f => f.id !== index);
+    toast("Idée retirée de ta liste. 💔");
+  } else {
+    favoris.push({ id: index, pour: pour || null });
+    toast("Idée gardée ! ❤️ Retrouve-la dans « Mes idées ».");
+    petiteVibration(30);
+  }
+  ecrireStockage("cadoo:favoris", favoris);
+  majBadgeFavoris();
+}
+
+function majBadgeFavoris() {
+  const badge = $("#badgeFavoris");
+  badge.textContent = favoris.length;
+  badge.classList.toggle("cache", favoris.length === 0);
+}
+
+function afficherFavoris() {
+  const zone = $("#zoneFavoris");
+  zone.innerHTML = "";
+  if (favoris.length === 0) {
+    zone.innerHTML = `
+      <div class="vide">
+        <span class="gros">🦌</span>
+        C’est bien vide par ici… Aucune idée gardée pour l’instant.<br>
+        Ouvre une case du calendrier ou lance le questionnaire, ton futur toi te dira merci.
+      </div>`;
+    return;
+  }
+  // Regroupement par personne (ou par origine : calendrier, surprise…)
+  const groupes = {};
+  favoris.forEach(f => {
+    const cle = f.pour || "💡 Idées en vrac";
+    (groupes[cle] = groupes[cle] || []).push(f);
+  });
+  // On affiche d’abord les vraies personnes, puis les groupes "libres"
+  const clesTriees = Object.keys(groupes).sort((a, b) => {
+    const aPersonne = DESTINATAIRES.some(d => d.id === a) ? 0 : 1;
+    const bPersonne = DESTINATAIRES.some(d => d.id === b) ? 0 : 1;
+    return aPersonne - bPersonne;
+  });
+  clesTriees.forEach(cle => {
+    const estPersonne = DESTINATAIRES.some(d => d.id === cle);
+    const titre = estPersonne ? `🎁 Pour ${labelDestinataire(cle)}` : cle;
+    const bloc = document.createElement("div");
+    bloc.innerHTML = `<div class="groupe-titre">${titre}</div>`;
+    groupes[cle].forEach(f => {
+      const idee = IDEES[f.id];
+      const ligne = document.createElement("div");
+      ligne.className = "fav-ligne";
+      ligne.innerHTML = `
+        <span class="emoji">${idee.emoji}</span>
+        <span class="infos">
+          <span class="nom">${idee.nom}</span>
+          <span class="detail" style="display:block">${prixTexte(idee)}</span>
+        </span>
+        <button class="btn-retirer" aria-label="Retirer ${idee.nom}">✕</button>`;
+      ligne.querySelector(".btn-retirer").addEventListener("click", () => {
+        basculerFavori(f.id);
+        afficherFavoris();
+      });
+      bloc.appendChild(ligne);
+    });
+    zone.appendChild(bloc);
+  });
+}
+
+/* Partage : on copie la liste en texte dans le presse-papiers */
+async function partagerFavoris() {
+  if (favoris.length === 0) { toast("Ta liste est vide : garde d’abord quelques idées ! 🎁"); return; }
+  const groupes = {};
+  favoris.forEach(f => {
+    const cle = f.pour && DESTINATAIRES.some(d => d.id === f.pour) ? `Pour ${labelDestinataire(f.pour)}` : (f.pour || "Idées en vrac");
+    (groupes[cle] = groupes[cle] || []).push(f);
+  });
+  let texte = "🎄 Mes idées de cadeaux de Noël (via Cadoo)\n";
+  Object.keys(groupes).forEach(cle => {
+    texte += `\n🎁 ${cle} :\n`;
+    groupes[cle].forEach(f => {
+      const idee = IDEES[f.id];
+      texte += `• ${idee.emoji} ${idee.nom} (${prixTexte(idee).replace("Environ ", "")})\n`;
+    });
+  });
+  try {
+    await navigator.clipboard.writeText(texte);
+    toast("Liste copiée ! 📋 Colle-la où tu veux.");
+  } catch (e) {
+    // Repli si le presse-papiers est refusé : zone de texte temporaire
+    const zone = document.createElement("textarea");
+    zone.value = texte;
+    document.body.appendChild(zone);
+    zone.select();
+    try { document.execCommand("copy"); toast("Liste copiée ! 📋 Colle-la où tu veux."); }
+    catch (e2) { toast("Copie impossible ici… mais ta liste est belle quand même. 😅"); }
+    zone.remove();
+  }
+}
+
+/* ============================================================
+   FONCTION 2 — UN CADEAU POUR QUELQU’UN (questionnaire)
+   ============================================================ */
+const QUESTIONS = [
+  { cle: "pour",    question: "Pour qui cherches-tu un cadeau ?", aide: "La personne qui va faire semblant d’être surprise le 25 au matin.", options: DESTINATAIRES, multi: false, colonnes: 2 },
+  { cle: "age",     question: "Quel âge a-t-elle environ ?",      aide: "À la louche, promis, on ne vérifiera pas sa carte d’identité.", options: AGES, multi: false, colonnes: 2 },
+  { cle: "budget",  question: "Quel est ton budget ?",            aide: "Sois honnête, ton banquier ne regarde pas par-dessus ton épaule.", options: BUDGETS, multi: false, colonnes: 2 },
+  { cle: "interets",question: "Qu’est-ce qu’elle aime ?",         aide: "Choisis-en autant que tu veux (au moins un).", options: INTERETS, multi: true, colonnes: 2 },
+  { cle: "style",   question: "Quel style de cadeau vises-tu ?",  aide: "Le petit truc qui fera la différence sous le sapin.", options: STYLES, multi: false, colonnes: 2 }
+];
+let reponses = {};
+let etape = 0;
+let ideesDejaMontrees = [];
+
+function demarrerQuiz() {
+  reponses = { interets: [] };
+  etape = 0;
+  ideesDejaMontrees = [];
+  afficherEcran("quiz");
+  afficherQuestion();
+}
+
+function afficherQuestion() {
+  const q = QUESTIONS[etape];
+  $("#barreProgression").style.width = ((etape + 1) / QUESTIONS.length * 100) + "%";
+  $("#texteEtape").textContent = `Question ${etape + 1} sur ${QUESTIONS.length}`;
+  $("#texteQuestion").textContent = q.question;
+  $("#aideQuestion").textContent = q.aide;
+  const zone = $("#zoneChoix");
+  zone.className = "choix" + (q.colonnes === 1 ? " une-colonne" : "");
+  zone.innerHTML = "";
+
+  q.options.forEach(opt => {
+    const b = document.createElement("button");
+    b.className = "btn-choix";
+    b.innerHTML = `<span class="emoji">${opt.emoji}</span><span>${opt.label}</span>`;
+    const dejaChoisi = q.multi ? reponses[q.cle].includes(opt.id) : reponses[q.cle] === opt.id;
+    if (dejaChoisi) b.classList.add("choisi");
+    b.addEventListener("click", () => choisirOption(q, opt.id, b));
+    zone.appendChild(b);
+  });
+
+  // Bouton "Continuer" : utile surtout pour la question multi-choix
+  const btn = $("#btnContinuer");
+  btn.textContent = etape === QUESTIONS.length - 1 ? "🎁 Voir mes idées !" : "Continuer ➜";
+  btn.disabled = q.multi ? reponses[q.cle].length === 0 : !reponses[q.cle];
+}
+
+function choisirOption(q, id, bouton) {
+  petiteVibration(15);
+  if (q.multi) {
+    const liste = reponses[q.cle];
+    const pos = liste.indexOf(id);
+    if (pos >= 0) liste.splice(pos, 1); else liste.push(id);
+    bouton.classList.toggle("choisi", pos < 0);
+    $("#btnContinuer").disabled = liste.length === 0;
+  } else {
+    reponses[q.cle] = id;
+    $$( "#zoneChoix .btn-choix").forEach(x => x.classList.remove("choisi"));
+    bouton.classList.add("choisi");
+    $("#btnContinuer").disabled = false;
+    // Choix unique : on avance tout seul après un petit temps de lecture
+    setTimeout(() => { if (ecranActuel === "quiz") etapeSuivante(); }, 280);
+  }
+}
+
+function etapeSuivante() {
+  if (etape < QUESTIONS.length - 1) {
+    etape++;
+    afficherQuestion();
+  } else {
+    afficherResultats(false);
+  }
+}
+
+/* ---------- Algorithme de matching ---------- */
+/* Score : destinataire +4, âge +3, style +3, budget +3, +2 par intérêt commun (max +6) */
+function scorerIdee(idee) {
+  let score = 0;
+  if (idee.pourQui.includes(reponses.pour)) score += 4;
+  if (idee.ages.includes(reponses.age)) score += 3;
+  if (idee.styles.includes(reponses.style)) score += 3;
+  const budget = BUDGETS.find(b => b.id === reponses.budget);
+  if (budget && idee.prixMin <= budget.max && idee.prixMax >= budget.min) score += 3;
+  const communs = idee.interets.filter(i => reponses.interets.includes(i)).length;
+  score += Math.min(communs * 2, 6);
+  return score;
+}
+function dansLeBudget(idee, budget, marge) {
+  return idee.prixMin <= budget.max + marge && idee.prixMax >= budget.min;
+}
+
+function piocherIdees() {
+  const budget = BUDGETS.find(b => b.id === reponses.budget);
+  // 1) On filtre par budget (avec une petite marge de tolérance de 10 €)
+  let candidates = IDEES.map((idee, i) => ({ idee, i, score: scorerIdee(idee) }))
+    .filter(x => dansLeBudget(x.idee, budget, 10));
+  // 2) Si c’est trop juste, on relâche progressivement les contraintes
+  if (candidates.length < 6) {
+    candidates = IDEES.map((idee, i) => ({ idee, i, score: scorerIdee(idee) }))
+      .filter(x => x.idee.pourQui.includes(reponses.pour));
+  }
+  if (candidates.length < 6) {
+    candidates = IDEES.map((idee, i) => ({ idee, i, score: scorerIdee(idee) }));
+  }
+  // 3) On garde les meilleures, on mélange le haut du panier, on évite les doublons déjà vus
+  candidates.sort((a, b) => b.score - a.score);
+  const hautDuPanier = candidates.slice(0, Math.max(10, candidates.length > 12 ? 12 : candidates.length));
+  melanger(hautDuPanier);
+  let fraiches = hautDuPanier.filter(x => !ideesDejaMontrees.includes(x.i));
+  if (fraiches.length < 3) { // tout a été vu : on repart pour un tour
+    ideesDejaMontrees = [];
+    fraiches = hautDuPanier;
+    toast("On a fait le tour des meilleures idées, on rembobine ! 🔄");
+  }
+  const choix = fraiches.slice(0, 3);
+  choix.forEach(x => ideesDejaMontrees.push(x.i));
+  return choix;
+}
+
+function melanger(tableau) {
+  for (let i = tableau.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [tableau[i], tableau[j]] = [tableau[j], tableau[i]];
+  }
+}
+
+function afficherResultats(relance) {
+  const choix = piocherIdees();
+  const dest = DESTINATAIRES.find(d => d.id === reponses.pour);
+  const budget = BUDGETS.find(b => b.id === reponses.budget);
+  $("#resumeResultats").textContent = relance
+    ? `Trois nouvelles idées pour ${dest.label.toLowerCase()} (budget ${budget.label.toLowerCase()}). Les lutins ont bien travaillé.`
+    : `Voici 3 idées pensées pour ${dest.label.toLowerCase()}, budget ${budget.label.toLowerCase()}. Tape sur le cœur pour garder tes préférées.`;
+
+  const zone = $("#zoneResultats");
+  zone.innerHTML = "";
+  choix.forEach(({ idee, i }, rang) => {
+    const carte = document.createElement("div");
+    carte.className = "carte-idee";
+    carte.style.animationDelay = (rang * 0.08) + "s";
+    carte.innerHTML = `
+      <button class="btn-coeur ${estFavori(i) ? "actif" : ""}" aria-label="Garder ${idee.nom}">${estFavori(i) ? "❤️" : "🤍"}</button>
+      <div class="haut">
+        <span class="gros-emoji">${idee.emoji}</span>
+        <div>
+          <h3>${idee.nom}</h3>
+          <p>${idee.description}</p>
+        </div>
+      </div>
+      <p class="pourquoi">💡 <strong>Pourquoi ça va plaire :</strong> parfait pour ${labelDestinataire(reponses.pour).toLowerCase()} fan de ${idee.interets.filter(x => reponses.interets.includes(x)).map(x => (INTERETS.find(y => y.id === x) || {}).label || x).join(" et ") || "belles surprises"}.</p>
+      <span class="prix">💶 Prix estimé : ${idee.prixMin} – ${idee.prixMax} €</span>`;
+    carte.querySelector(".btn-coeur").addEventListener("click", ev => {
+      basculerFavori(i, reponses.pour);
+      ev.currentTarget.textContent = estFavori(i) ? "❤️" : "🤍";
+      ev.currentTarget.classList.toggle("actif", estFavori(i));
+    });
+    // Toucher la carte ouvre la fiche détail
+    carte.addEventListener("click", () => ouvrirFiche(idee, i, { pour: reponses.pour }));
+    zone.appendChild(carte);
+  });
+  afficherEcran("resultats");
+  petitSon();
+}
+
+/* ============================================================
+   BONUS — « Surprends-moi » : une idée au hasard
+   ============================================================ */
+function surprise() {
+  const i = Math.floor(Math.random() * IDEES.length);
+  petitSon();
+  petiteVibration(40);
+  ouvrirFiche(IDEES[i], i, { pour: null, surprise: true });
+}
+
+/* ============================================================
+   NEIGE QUI TOMBE (canvas léger)
+   ============================================================ */
+function lancerNeige() {
+  const canvas = $("#neige");
+  const ctx = canvas.getContext("2d");
+  const mouvementReduit = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let largeur = 0, hauteur = 0, flocons = [];
+  function redimensionner() {
+    largeur = canvas.width = window.innerWidth;
+    hauteur = canvas.height = window.innerHeight;
+    const nombre = mouvementReduit ? 0 : Math.min(80, Math.floor(largeur / 12));
+    flocons = Array.from({ length: nombre }, () => ({
+      x: Math.random() * largeur,
+      y: Math.random() * hauteur,
+      r: 1 + Math.random() * 2.4,
+      vitesse: 0.4 + Math.random() * 0.9,
+      derive: Math.random() * Math.PI * 2,
+      amplitude: 0.3 + Math.random() * 0.7
+    }));
+  }
+  redimensionner();
+  window.addEventListener("resize", redimensionner);
+  (function animer() {
+    ctx.clearRect(0, 0, largeur, hauteur);
+    ctx.fillStyle = "rgba(255,255,255,.85)";
+    flocons.forEach(f => {
+      f.y += f.vitesse;
+      f.derive += 0.01;
+      f.x += Math.sin(f.derive) * f.amplitude * 0.4;
+      if (f.y > hauteur + 5) { f.y = -5; f.x = Math.random() * largeur; }
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    requestAnimationFrame(animer);
+  })();
+}
+
+/* ============================================================
+   INITIALISATION & ÉVÉNEMENTS GLOBAUX
+   ============================================================ */
+function initialiser() {
+  majCompteRebours();
+  afficherCalendrier();
+  majBadgeFavoris();
+  lancerNeige();
+
+  // Navigation (boutons avec data-nav, cartes d’accueil, barre du bas)
+  $$("[data-nav]").forEach(el => {
+    el.addEventListener("click", () => {
+      const cible = el.dataset.nav;
+      if (cible === "quiz") demarrerQuiz();
+      else afficherEcran(cible);
+    });
+  });
+  $("#btnRetour").addEventListener("click", () => afficherEcran("accueil"));
+
+  // Calendrier : mode test
+  $("#btnModeTest").addEventListener("click", () => {
+    modeTest = !modeTest;
+    $("#btnModeTest").classList.toggle("actif", modeTest);
+    $("#btnModeTest").textContent = modeTest ? "🧪 Mode test activé : tout est ouvert !" : "🧪 Mode test : tout débloquer";
+    afficherCalendrier();
+    toast(modeTest ? "Mode test : les 25 cases sont débloquées ! 🔓" : "Mode test désactivé : retour au vrai calendrier. 🎅");
+  });
+
+  // Questionnaire
+  $("#btnContinuer").addEventListener("click", etapeSuivante);
+  $("#btnRecommencerQuiz").addEventListener("click", demarrerQuiz);
+  $("#btnRefaireQuiz").addEventListener("click", demarrerQuiz);
+  $("#btnAutreIdee").addEventListener("click", () => afficherResultats(true));
+
+  // Favoris
+  $("#btnPartager").addEventListener("click", partagerFavoris);
+
+  // Surprise
+  $("#btnSurprise").addEventListener("click", surprise);
+  $("#btnAutreSurprise").addEventListener("click", surprise);
+
+  // Feuille modale
+  $("#btnFermerFeuille").addEventListener("click", fermerFiche);
+  $("#voile").addEventListener("click", fermerFiche);
+  $("#btnGarderIdee").addEventListener("click", () => {
+    if (ideeOuverte === null) return;
+    basculerFavori(ideeOuverte, contexteIdee.pour);
+    majBoutonGarder();
+    if (ecranActuel === "calendrier") afficherCalendrier();
+    if (ecranActuel === "resultats") afficherResultats(false);
+  });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") fermerFiche(); });
+
+  // Bouton son / vibrations
+  const btnSon = $("#btnSon");
+  btnSon.textContent = sonActif ? "🔔" : "🔕";
+  btnSon.addEventListener("click", () => {
+    sonActif = !sonActif;
+    ecrireStockage("cadoo:son", sonActif);
+    btnSon.textContent = sonActif ? "🔔" : "🔕";
+    toast(sonActif ? "Sons et vibrations activés 🔔" : "Chut… mode silencieux 🔕");
+    if (sonActif) petitSon();
+  });
+}
+
+// Démarrage (protégé pour permettre les tests hors navigateur)
+if (typeof document !== "undefined") {
+  document.addEventListener("DOMContentLoaded", initialiser);
+}
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { IDEES, CALENDRIER, DESTINATAIRES, AGES, BUDGETS, INTERETS, STYLES };
+}
+</script>
+</body>
+</html>
